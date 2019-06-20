@@ -7,29 +7,16 @@
 #include <Adafruit_BME280.h>
 #include <Ticker.h>
 #include "prometheus.h"
+#include "config.h"
 
-const char *ssid     = "*****"; // Your SSID here
-const char *password = "*********"; // Your password here
-
-#define METRICS_JOB         "env_sensor"
-#define METRICS_INSTANCE    "Office"
-
-#define MAX_LOOP_TIME_MS     10000
+#define MAX_LOOP_TIME_MS     30000
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
 const String metrics_url = "/metrics/job/" + String(METRICS_JOB) +
                            "/instance/" + String(METRICS_INSTANCE);
 
-#define SERVER_IP           "192.168.252.20"
-
-#define SERVER_PORT         9091
-
 Ticker sleepTicker;
-
-IPAddress ip(192, 168, 252, 20);   // The address 192.168.252.20 is arbitary, if could be any address in the range of your router, but not another device!
-IPAddress gateway(192,168,252,1);  // My router has this base address
-IPAddress subnet(255,255,254,0); // Define the sub-network
 
 Adafruit_BME280 bme; // Note Adafruit assumes I2C adress = 0x77 my module (eBay) uses 0x76 so the library address has been changed.
 
@@ -63,9 +50,6 @@ void setup() {
     Serial.print(".");
   }
   Serial.println("WiFi connected..");
-  // Start the webserver
-  // server.begin();
-  Serial.println("Webserver started...");
   pinMode(D3, INPUT_PULLUP); //Set input (SDA) pull-up resistor on
 
   Wire.setClock(2000000);    // Set I2C bus speed 
@@ -112,12 +96,11 @@ void loop(void)
   Serial.printf("WiFi init took an additional %d ms\n", wifiTime);
  
   pclient.AddMetric(makeMetric("humidity", humidity));
-  pclient.AddMetric(makeMetric("tempC", temp));
+  pclient.AddMetric(makeMetric("temperature", temp));
   pclient.AddMetric(makeMetric("free_heap", ESP.getFreeHeap()));
   pclient.AddMetric(makeMetric("pressure", bme.readPressure()));
-  pclient.AddMetric(makeMetric("altitude", bme.readAltitude(SEALEVELPRESSURE_HPA)));
   pclient.AddMetric(makeMetric("loop_time", float(millis() - startTime)));
   pclient.PrintSerial();
   pclient.Send();
   sleepyTime();
-} 
+}
