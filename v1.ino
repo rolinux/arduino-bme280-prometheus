@@ -9,18 +9,18 @@
 #include "prometheus.h"
 #include "config.h"
 
-#define SEALEVELPRESSURE_HPA (1013.25)
-
+// target Prometheus Pushgateway URL
 const String metrics_url = "/metrics/job/" + String(METRICS_JOB) +
                            "/instance/" + String(METRICS_INSTANCE);
 
-Adafruit_BME280 bme; // Note Adafruit assumes I2C adress = 0x77 my module (eBay) uses 0x76 so the library address has been changed.
+Adafruit_BME280 bme; // Note Adafruit assumes I2C address = 0x77 but later use set it as 0x76
 
 void setup() {
+  // debug on Serial
   Serial.begin(115200);
   Serial.print("Connecting to ");
-  Serial.println(ssid);          // Connect to WiFi network
-  WiFi.config(ip, gateway, subnet);
+  Serial.println(ssid);
+  WiFi.config(ip, gateway, subnet); // Connect to WiFi network
   WiFi.persistent(false);  // disables the storage of credentials to flash.
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -37,7 +37,6 @@ void setup() {
     while (1);
   }
 }
-
 
 bool isValidHumidity(const float humidity) {
   return (!isnan(humidity) && humidity >= 0 && humidity <= 100);
@@ -73,5 +72,5 @@ void loop(void)
   pclient.AddMetric(makeMetric("pressure", bme.readPressure()));
   pclient.PrintSerial();
   pclient.Send();
-  delay(30000);        // Control speed of BME280 sensor reading
+  delay(DELAY_BETWEEN_READINGS);        // Control speed of BME280 sensor reading
 }

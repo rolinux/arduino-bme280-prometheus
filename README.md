@@ -1,3 +1,3 @@
 # arduino-bme280-prometheus
 
-Based on https://github.com/z2amiller/libraries/tree/master/prometheus and https://github.com/z2amiller/sensorboard/tree/master/code/PrometheusSensor
+Arduino [WEMOS D1 mini](https://wiki.wemos.cc/products:d1:d1_mini) plus BME280 and Prometheus Pushgateway code
