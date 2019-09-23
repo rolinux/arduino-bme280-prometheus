@@ -1,6 +1,13 @@
 // ESP8266 WebServer - using BME280 sensor
 // https://github.com/rolinux/arduino-bme280-prometheus
 //
+// Wire mapping
+// D1 mini 3v3 <-> BME 280 3v3
+// D1 mini GNG <-> BME 280 GNG
+// D1 mini D1 <-> BME 280 SCL
+// D1 mini D2 <-> BME 280 SCA
+//
+
 #include <Wire.h>
 #include <ESP8266WiFi.h>
 #include <Adafruit_Sensor.h>
