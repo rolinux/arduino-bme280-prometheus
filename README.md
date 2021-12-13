@@ -6,4 +6,4 @@ Arduino Code using:
 * [BME280 Temperature, Humidity and Pressure](https://www.adafruit.com/product/2652) sensor
 * pushing metrics to [Prometheus Pushgateway](https://github.com/prometheus/pushgateway)
 
-Prometheus Pushgateway (in my case running in a container) is the target for Arduino to avoid running a web server on the Arduino and it is really a caching layer for metrics and later on scraped by Prometheus.
+Prometheus Pushgateway (in my case two of them running on a Raspberry Pi 3 and a Raspberry Pi Zero W) are the target for Arduino to avoid running a web server on the Arduino and it is really a caching layer for metrics and later on scraped by Prometheus (alternative can be MQTT)
