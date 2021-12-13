@@ -38,7 +38,7 @@ void setup() {
   pinMode(D3, INPUT_PULLUP); //Set input (SDA) pull-up resistor on
 
   Wire.setClock(2000000);    // Set I2C bus speed
-  Wire.begin(D2,D1); // Define which ESP8266 pins to use for SDA, SCL of the Sensor
+  Wire.begin(D2, D1); // Define which ESP8266 pins to use for SDA, SCL of the Sensor
   if (!bme.begin(0x76)) {
     Serial.println("Could not find a valid BME280 sensor, check wiring!");
     while (1);
@@ -61,10 +61,6 @@ MapMetric makeMetric(const String& name, const float value) {
 
 void loop(void)
 {
-  PrometheusClient pclient =
-      PrometheusClient(SERVER_IP, SERVER_PORT,
-                       METRICS_JOB, METRICS_INSTANCE);
-
   float temp = bme.readTemperature();
   float humidity = bme.readHumidity();
   while (!(isValidTemp(temp) && isValidHumidity(humidity))) {
@@ -73,11 +69,32 @@ void loop(void)
     humidity = bme.readHumidity();
   }
 
+  Serial.printf("Debug: temp ...%6.4lf\n", temp);
+  Serial.printf("Debug: humidity ...%6.4lf\n", humidity);
+
+  // first pushgateway client
+  PrometheusClient pclient =
+    PrometheusClient(SERVER_IP_1, SERVER_PORT,
+                     METRICS_JOB, METRICS_INSTANCE);
+  
   pclient.AddMetric(makeMetric("humidity", humidity));
   pclient.AddMetric(makeMetric("temperature", temp));
   pclient.AddMetric(makeMetric("free_heap", ESP.getFreeHeap()));
   pclient.AddMetric(makeMetric("pressure", bme.readPressure()));
-  pclient.PrintSerial();
+  // pclient.PrintSerial(); // this part breaks the stack
   pclient.Send();
+
+  // second pushgateway client
+  PrometheusClient pclient2 =
+    PrometheusClient(SERVER_IP_2, SERVER_PORT,
+                     METRICS_JOB, METRICS_INSTANCE);
+
+  pclient2.AddMetric(makeMetric("humidity", humidity));
+  pclient2.AddMetric(makeMetric("temperature", temp));
+  pclient2.AddMetric(makeMetric("free_heap", ESP.getFreeHeap()));
+  pclient2.AddMetric(makeMetric("pressure", bme.readPressure()));
+  // pclient2.PrintSerial(); // this part breaks the stack
+  pclient2.Send();
+
   delay(DELAY_BETWEEN_READINGS);        // Control speed of BME280 sensor reading
 }
